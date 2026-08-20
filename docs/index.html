@@ -2,1435 +2,220 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>地方競馬予想 2026/08/20</title>
 <style>
 :root {
   color-scheme: light dark;
-  --bg: #0f1420;
-  --bg2: #161d2e;
-  --card: #1b2437;
-  --border: #2a3550;
-  --fg: #e8ecf5;
-  --fg2: #a8b3c9;
-  --fg3: #6b7690;
-  --gold: #d4af5a;
-  --gold2: #f0d896;
-  --accent: #4a9eff;
-  --chip-bg: #24304a;
+  --bg: #0f1420; --bg2: #161d2e; --card: #1b2437; --border: #2a3550;
+  --fg: #e8ecf5; --fg2: #a8b3c9; --fg3: #6b7690;
+  --gold: #d4af5a; --gold2: #f0d896; --accent: #4a9eff;
+  --chip-bg: #24304a; --ok: #4caf7d; --pending: #6b7690;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-force-dark]) {
-    --bg: #f5f3ee;
-    --bg2: #ffffff;
-    --card: #ffffff;
-    --border: #e0dccf;
-    --fg: #1c1c1c;
-    --fg2: #52504a;
-    --fg3: #8a877c;
-    --gold: #9c7a1f;
-    --gold2: #6b5614;
-    --accent: #1a6fd6;
-    --chip-bg: #f0ede3;
+    --bg: #f5f3ee; --bg2: #ffffff; --card: #ffffff; --border: #e0dccf;
+    --fg: #1c1c1c; --fg2: #52504a; --fg3: #8a877c;
+    --gold: #9c7a1f; --gold2: #6b5614; --accent: #1a6fd6;
+    --chip-bg: #f0ede3; --ok: #2f8f5b; --pending: #a09c8e;
   }
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
+  margin: 0; background: var(--bg); color: var(--fg);
   font-family: -apple-system, "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
-  line-height: 1.5;
-  padding-bottom: 40px;
+  line-height: 1.45; display: flex; flex-direction: column; overflow: hidden;
 }
 header {
-  padding: 20px 16px 14px;
+  padding: 10px 12px 0;
   background: linear-gradient(180deg, var(--bg2), var(--bg));
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  flex: 0 0 auto;
 }
-header h1 {
-  margin: 0 0 4px;
-  font-size: 1.3rem;
-  color: var(--gold2);
+header .top-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+header h1 { margin: 0; font-size: 1.05rem; color: var(--gold2); }
+header .updated { font-size: 0.68rem; color: var(--fg3); }
+
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 0 0 auto; padding: 6px 14px; border-radius: 16px 16px 0 0;
+  background: var(--bg); border: 1px solid var(--border); border-bottom: none;
+  color: var(--fg2); font-size: 0.88rem; cursor: pointer;
 }
-header .updated {
-  font-size: 0.78rem;
-  color: var(--fg3);
+.tab-btn.active { background: var(--card); color: var(--gold2); font-weight: 700; }
+
+.races-row { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; scrollbar-width: none; }
+.races-row::-webkit-scrollbar { display: none; }
+.race-chip {
+  flex: 0 0 auto; min-width: 2.6em; text-align: center; padding: 6px 4px;
+  border-radius: 8px; border: 1px solid var(--border); background: var(--chip-bg);
+  color: var(--fg2); font-size: 0.82rem; cursor: pointer; position: relative;
 }
-main { max-width: 640px; margin: 0 auto; padding: 12px; }
-.venue-section { margin-bottom: 28px; }
-.venue-title {
-  font-size: 1.05rem;
-  color: var(--gold);
-  border-left: 4px solid var(--gold);
-  padding-left: 10px;
-  margin: 18px 0 10px;
+.race-chip .dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--pending); margin-left: 3px; vertical-align: middle;
 }
-.empty { color: var(--fg3); font-size: 0.9rem; padding-left: 10px; }
-.race-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  margin-bottom: 12px;
-  overflow: hidden;
-}
+.race-chip.confirmed .dot { background: var(--ok); }
+.race-chip.active { border-color: var(--gold); color: var(--gold2); font-weight: 700; }
+
+main { flex: 1 1 auto; overflow-y: auto; padding: 10px 12px 24px; max-width: 640px; margin: 0 auto; width: 100%; }
+.empty { color: var(--fg3); font-size: 0.9rem; text-align: center; padding: 30px 10px; }
+
+.race-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .race-head {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 10px 14px;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  display: flex; align-items: baseline; gap: 10px; padding: 10px 14px;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
 }
-.race-no { font-weight: 700; font-size: 1.05rem; color: var(--gold2); }
+.race-no { font-weight: 700; font-size: 1.1rem; color: var(--gold2); }
 .race-n { font-size: 0.8rem; color: var(--fg3); }
+.post-time { font-size: 0.8rem; color: var(--fg2); margin-left: auto; }
+.status-badge { font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; }
+.status-badge.pending { background: var(--chip-bg); color: var(--fg3); }
+.status-badge.confirmed { background: var(--ok); color: #fff; }
+
 .horses { padding: 6px 14px; }
 .horse-row {
-  display: grid;
-  grid-template-columns: 1.6em 2.2em 1fr 3.2em;
-  gap: 6px;
-  align-items: center;
-  padding: 4px 0;
-  font-size: 0.9rem;
-  border-bottom: 1px dashed var(--border);
+  display: grid; grid-template-columns: 1.6em 2.2em 1fr 3.2em; gap: 6px;
+  align-items: center; padding: 4px 0; font-size: 0.9rem; border-bottom: 1px dashed var(--border);
 }
 .horse-row:last-child { border-bottom: none; }
 .sym { color: var(--gold); font-weight: 700; text-align: center; }
 .hno { color: var(--fg2); text-align: right; }
 .hname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .score { color: var(--fg3); font-size: 0.8rem; text-align: right; font-variant-numeric: tabular-nums; }
+
 .bets { padding: 8px 14px 12px; border-top: 1px solid var(--border); }
 .bet-row { margin-top: 6px; }
 .bet-row.no-bet { color: var(--fg3); font-size: 0.85rem; text-align: center; padding: 4px 0; }
 .bet-type { display: block; font-size: 0.78rem; color: var(--fg3); margin-bottom: 4px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
-  background: var(--chip-bg);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 0.82rem;
-  color: var(--fg2);
-  white-space: nowrap;
+  background: var(--chip-bg); border: 1px solid var(--border); border-radius: 20px;
+  padding: 4px 10px; font-size: 0.82rem; color: var(--fg2); white-space: nowrap;
 }
 .chip b { color: var(--accent); }
-footer {
-  text-align: center;
-  color: var(--fg3);
-  font-size: 0.75rem;
-  padding: 20px 16px 8px;
+
+.result-box { padding: 10px 14px; border-top: 1px solid var(--border); background: var(--bg2); }
+.result-box h3 { margin: 0 0 6px; font-size: 0.82rem; color: var(--ok); }
+.finish-list { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.finish-item { font-size: 0.85rem; color: var(--fg2); }
+.finish-item .pos { color: var(--gold); font-weight: 700; margin-right: 3px; }
+.payout-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.payout-chip {
+  background: var(--card); border: 1px solid var(--ok); border-radius: 20px;
+  padding: 4px 10px; font-size: 0.82rem; color: var(--fg2);
 }
+.payout-chip b { color: var(--ok); }
+
+footer { text-align: center; color: var(--fg3); font-size: 0.7rem; padding: 10px; flex: 0 0 auto; }
 </style>
 </head>
 <body>
 <header>
-  <h1>🏇 地方競馬予想</h1>
-  <div class="updated">2026/08/20 の予想　最終更新: 2026/08/20 09:28</div>
+  <div class="top-row">
+    <h1>🏇 地方競馬予想</h1>
+    <span class="updated">更新: 2026/08/20 10:05</span>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="races-row" id="races"></div>
 </header>
-<main>
-
-    <section class="venue-section">
-      <h2 class="venue-title">川崎</h2>
-      
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">1R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">2</span>
-          <span class="hname">ピュアリヤン</span>
-          <span class="score">0.339</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">8</span>
-          <span class="hname">コーリングヘニー</span>
-          <span class="score">0.309</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">5</span>
-          <span class="hname">クラダイリン</span>
-          <span class="score">0.302</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">4</span>
-          <span class="hname">ゴームズ</span>
-          <span class="score">0.264</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">3</span>
-          <span class="hname">マイアイガー</span>
-          <span class="score">0.258</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">10</span>
-          <span class="hname">ブルーラジカル</span>
-          <span class="score">0.216</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">6</span>
-          <span class="hname">ニシノテンカフブ</span>
-          <span class="score">0.208</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">2-4-10 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">2R</span>
-        <span class="race-n">9頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">3</span>
-          <span class="hname">クラリスマインド</span>
-          <span class="score">0.323</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">8</span>
-          <span class="hname">エポナシャンス</span>
-          <span class="score">0.290</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">7</span>
-          <span class="hname">メガアイマシタネ</span>
-          <span class="score">0.285</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">2</span>
-          <span class="hname">シェナシャングリラ</span>
-          <span class="score">0.262</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">1</span>
-          <span class="hname">モウエエワ</span>
-          <span class="score">0.243</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">9</span>
-          <span class="hname">デイデイト</span>
-          <span class="score">0.228</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">4</span>
-          <span class="hname">テルケンユミツバキ</span>
-          <span class="score">0.217</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">2-7-9 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">3R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">4</span>
-          <span class="hname">ゴーゴーメロディ</span>
-          <span class="score">0.381</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">10</span>
-          <span class="hname">ピエスポリード</span>
-          <span class="score">0.356</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">6</span>
-          <span class="hname">ジーベローチェ</span>
-          <span class="score">0.331</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">2</span>
-          <span class="hname">キングスケヨー</span>
-          <span class="score">0.318</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">5</span>
-          <span class="hname">モンゲータイム</span>
-          <span class="score">0.311</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">3</span>
-          <span class="hname">アンジュベル</span>
-          <span class="score">0.288</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">1</span>
-          <span class="hname">サウンドプリモ</span>
-          <span class="score">0.288</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">3-4-10 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">4R</span>
-        <span class="race-n">10頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">9</span>
-          <span class="hname">デイトリッパー</span>
-          <span class="score">0.396</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">7</span>
-          <span class="hname">ミーリイ</span>
-          <span class="score">0.318</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">4</span>
-          <span class="hname">シガ</span>
-          <span class="score">0.313</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">1</span>
-          <span class="hname">サンドリヨン</span>
-          <span class="score">0.260</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">3</span>
-          <span class="hname">クリスタルシー</span>
-          <span class="score">0.256</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">6</span>
-          <span class="hname">シンメウィル</span>
-          <span class="score">0.225</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">8</span>
-          <span class="hname">ナットワン</span>
-          <span class="score">0.224</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">1-6-7 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">5R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">9</span>
-          <span class="hname">パルメニデス</span>
-          <span class="score">0.342</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">10</span>
-          <span class="hname">スマイルポピー</span>
-          <span class="score">0.290</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">1</span>
-          <span class="hname">ミストラ</span>
-          <span class="score">0.269</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">11</span>
-          <span class="hname">タヴァネスタン</span>
-          <span class="score">0.268</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">3</span>
-          <span class="hname">モナークスラッガー</span>
-          <span class="score">0.202</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">2</span>
-          <span class="hname">ヴァッツマン</span>
-          <span class="score">0.201</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">6</span>
-          <span class="hname">ケイツーブル</span>
-          <span class="score">0.196</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">9-10-11 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">6R</span>
-        <span class="race-n">13頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">10</span>
-          <span class="hname">ペータース</span>
-          <span class="score">0.293</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">11</span>
-          <span class="hname">ダンタリオン</span>
-          <span class="score">0.292</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">4</span>
-          <span class="hname">ダテオトコ</span>
-          <span class="score">0.290</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">クレバス</span>
-          <span class="score">0.264</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">2</span>
-          <span class="hname">ロクノレインボー</span>
-          <span class="score">0.264</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">3</span>
-          <span class="hname">マイアミ</span>
-          <span class="score">0.244</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">7</span>
-          <span class="hname">エスジースパークル</span>
-          <span class="score">0.192</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">7R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">1</span>
-          <span class="hname">ササキントモゴロウ</span>
-          <span class="score">0.356</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">6</span>
-          <span class="hname">フェイティアン</span>
-          <span class="score">0.272</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">8</span>
-          <span class="hname">イルフロッタント</span>
-          <span class="score">0.269</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">2</span>
-          <span class="hname">アトラスライズ</span>
-          <span class="score">0.255</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">4</span>
-          <span class="hname">マルモリアクティブ</span>
-          <span class="score">0.233</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">11</span>
-          <span class="hname">タッカーバリアント</span>
-          <span class="score">0.231</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">3</span>
-          <span class="hname">タケノロイヤル</span>
-          <span class="score">0.217</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">1-3-8 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">8R</span>
-        <span class="race-n">13頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">13</span>
-          <span class="hname">デルマニンフ</span>
-          <span class="score">0.357</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">7</span>
-          <span class="hname">カズヤ</span>
-          <span class="score">0.286</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">6</span>
-          <span class="hname">アリハッピー</span>
-          <span class="score">0.273</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">オルペラー</span>
-          <span class="score">0.254</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">5</span>
-          <span class="hname">エリンフレーム</span>
-          <span class="score">0.253</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">4</span>
-          <span class="hname">メイショウマチルダ</span>
-          <span class="score">0.228</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">12</span>
-          <span class="hname">エイシントゥラン</span>
-          <span class="score">0.207</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">7-9-13 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">9R</span>
-        <span class="race-n">10頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">5</span>
-          <span class="hname">タイセイフランク</span>
-          <span class="score">0.338</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">4</span>
-          <span class="hname">アイルプロテクト</span>
-          <span class="score">0.338</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">2</span>
-          <span class="hname">エターナルセイバー</span>
-          <span class="score">0.263</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">6</span>
-          <span class="hname">ミスフォルテ</span>
-          <span class="score">0.259</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">8</span>
-          <span class="hname">サラサエンペラー</span>
-          <span class="score">0.219</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">3</span>
-          <span class="hname">アイアンピッチ</span>
-          <span class="score">0.212</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">10</span>
-          <span class="hname">スプリンガフォート</span>
-          <span class="score">0.194</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">4-5-6 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">10R</span>
-        <span class="race-n">9頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">1</span>
-          <span class="hname">フジュム</span>
-          <span class="score">0.429</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">5</span>
-          <span class="hname">カナールショウヘイ</span>
-          <span class="score">0.402</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">2</span>
-          <span class="hname">グレイスカリヨン</span>
-          <span class="score">0.390</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">ダートレイジング</span>
-          <span class="score">0.349</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">4</span>
-          <span class="hname">スティールウィル</span>
-          <span class="score">0.322</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">7</span>
-          <span class="hname">ユメドリーム</span>
-          <span class="score">0.247</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">6</span>
-          <span class="hname">ベアアスムイ</span>
-          <span class="score">0.216</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">1-2-5 <b>1,000円</b></span></div>
-        </div>
-        <div class="bet-row">
-          <span class="bet-type">3連単</span>
-          <div class="chips"><span class="chip">1-2-5 <b>200円</b></span><span class="chip">1-5-2 <b>200円</b></span><span class="chip">1-2-9 <b>200円</b></span><span class="chip">1-9-2 <b>100円</b></span><span class="chip">1-5-9 <b>100円</b></span><span class="chip">1-9-5 <b>100円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">11R</span>
-        <span class="race-n">14頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">2</span>
-          <span class="hname">ミスティライズ</span>
-          <span class="score">0.291</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">5</span>
-          <span class="hname">スターグリップ</span>
-          <span class="score">0.268</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">3</span>
-          <span class="hname">モンタナアゲート</span>
-          <span class="score">0.255</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">14</span>
-          <span class="hname">レグノ</span>
-          <span class="score">0.244</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">7</span>
-          <span class="hname">バリアントバイオ</span>
-          <span class="score">0.224</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">6</span>
-          <span class="hname">サヨノフィールド</span>
-          <span class="score">0.196</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">10</span>
-          <span class="hname">シャンパンファイト</span>
-          <span class="score">0.195</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">12R</span>
-        <span class="race-n">13頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">6</span>
-          <span class="hname">グラズヘイム</span>
-          <span class="score">0.319</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">2</span>
-          <span class="hname">ドナエポナ</span>
-          <span class="score">0.279</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">1</span>
-          <span class="hname">テセラグラディウス</span>
-          <span class="score">0.274</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">3</span>
-          <span class="hname">ブルーオーシャン</span>
-          <span class="score">0.240</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">7</span>
-          <span class="hname">マーベラスティアラ</span>
-          <span class="score">0.237</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">13</span>
-          <span class="hname">ジーカンピオーネ</span>
-          <span class="score">0.221</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">11</span>
-          <span class="hname">ピカレスクヒーロー</span>
-          <span class="score">0.221</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">2-6-11 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    </section>
-    <section class="venue-section">
-      <h2 class="venue-title">名古屋</h2>
-      
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">1R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">1</span>
-          <span class="hname">カイトアザリー</span>
-          <span class="score">0.280</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">3</span>
-          <span class="hname">ウインマデイラ</span>
-          <span class="score">0.266</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">2</span>
-          <span class="hname">ナンヨーロイヤル</span>
-          <span class="score">0.205</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">6</span>
-          <span class="hname">メイナンファスト</span>
-          <span class="score">0.203</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">10</span>
-          <span class="hname">ヴェロシア</span>
-          <span class="score">0.194</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">11</span>
-          <span class="hname">チェリカキング</span>
-          <span class="score">0.191</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">9</span>
-          <span class="hname">メーテルリンク</span>
-          <span class="score">0.182</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">2R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">12</span>
-          <span class="hname">ウエスタンオレンジ</span>
-          <span class="score">0.271</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">11</span>
-          <span class="hname">エバーウインド</span>
-          <span class="score">0.249</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">2</span>
-          <span class="hname">アイオロステソーロ</span>
-          <span class="score">0.238</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">1</span>
-          <span class="hname">クモンリュウ</span>
-          <span class="score">0.232</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">6</span>
-          <span class="hname">クツシタオトシタ</span>
-          <span class="score">0.226</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">5</span>
-          <span class="hname">スエ</span>
-          <span class="score">0.216</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">7</span>
-          <span class="hname">シンクシビリティ</span>
-          <span class="score">0.213</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">3R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">4</span>
-          <span class="hname">グレーターグレイ</span>
-          <span class="score">0.206</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">2</span>
-          <span class="hname">ユイノレジスタンス</span>
-          <span class="score">0.204</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">5</span>
-          <span class="hname">スージーハルワ</span>
-          <span class="score">0.195</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">10</span>
-          <span class="hname">インサラータ</span>
-          <span class="score">0.190</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">11</span>
-          <span class="hname">スピネルテソーロ</span>
-          <span class="score">0.182</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">7</span>
-          <span class="hname">ケイズシャーロット</span>
-          <span class="score">0.180</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">6</span>
-          <span class="hname">キタカラキタマアヤ</span>
-          <span class="score">0.179</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">4R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">8</span>
-          <span class="hname">マイネルラジェム</span>
-          <span class="score">0.243</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">4</span>
-          <span class="hname">ナムラキングダム</span>
-          <span class="score">0.218</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">7</span>
-          <span class="hname">ウインクリンゲル</span>
-          <span class="score">0.213</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">ベベペッパー</span>
-          <span class="score">0.212</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">3</span>
-          <span class="hname">ペプチドプラタ</span>
-          <span class="score">0.209</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">10</span>
-          <span class="hname">デパーチャー</span>
-          <span class="score">0.202</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">1</span>
-          <span class="hname">トントンビョウシ</span>
-          <span class="score">0.192</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">5R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">2</span>
-          <span class="hname">プロメッサ</span>
-          <span class="score">0.266</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">8</span>
-          <span class="hname">クールマーロウ</span>
-          <span class="score">0.245</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">7</span>
-          <span class="hname">カムイパパイヤ</span>
-          <span class="score">0.233</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">11</span>
-          <span class="hname">ネオアリシア</span>
-          <span class="score">0.211</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">スマートヌーメン</span>
-          <span class="score">0.202</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">10</span>
-          <span class="hname">ロジスクリーン</span>
-          <span class="score">0.194</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">4</span>
-          <span class="hname">アスプロガイア</span>
-          <span class="score">0.188</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">6R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">9</span>
-          <span class="hname">シャンドネージュ</span>
-          <span class="score">0.237</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">10</span>
-          <span class="hname">デルマガニメデ</span>
-          <span class="score">0.210</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">5</span>
-          <span class="hname">スイートゥンビター</span>
-          <span class="score">0.210</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">11</span>
-          <span class="hname">シヴァールバーニ</span>
-          <span class="score">0.204</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">2</span>
-          <span class="hname">セブンスプリングス</span>
-          <span class="score">0.203</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">3</span>
-          <span class="hname">ノイアーターク</span>
-          <span class="score">0.197</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">8</span>
-          <span class="hname">パープルルージュ</span>
-          <span class="score">0.194</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">7R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">9</span>
-          <span class="hname">セイスイミリオン</span>
-          <span class="score">0.290</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">5</span>
-          <span class="hname">ミステンザン</span>
-          <span class="score">0.226</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">11</span>
-          <span class="hname">ウィルマッチ</span>
-          <span class="score">0.209</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">4</span>
-          <span class="hname">サンフローリス</span>
-          <span class="score">0.206</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">8</span>
-          <span class="hname">ナムラフィクサー</span>
-          <span class="score">0.203</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">1</span>
-          <span class="hname">ミキノオーボエ</span>
-          <span class="score">0.194</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">3</span>
-          <span class="hname">マサハヤモーブ</span>
-          <span class="score">0.187</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">8R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">5</span>
-          <span class="hname">タベザカリ</span>
-          <span class="score">0.278</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">1</span>
-          <span class="hname">ホウオウシーザー</span>
-          <span class="score">0.254</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">7</span>
-          <span class="hname">デトネイター</span>
-          <span class="score">0.237</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">8</span>
-          <span class="hname">フクノジョヴァンニ</span>
-          <span class="score">0.231</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">11</span>
-          <span class="hname">リョウライライ</span>
-          <span class="score">0.228</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">3</span>
-          <span class="hname">モアサナイト</span>
-          <span class="score">0.204</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">6</span>
-          <span class="hname">ラントリサント</span>
-          <span class="score">0.201</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">9R</span>
-        <span class="race-n">6頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">2</span>
-          <span class="hname">ジェイエルバルカー</span>
-          <span class="score">0.335</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">4</span>
-          <span class="hname">ブライテン</span>
-          <span class="score">0.284</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">3</span>
-          <span class="hname">ラブラブフォー</span>
-          <span class="score">0.230</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">1</span>
-          <span class="hname">ジャスパーノワール</span>
-          <span class="score">0.196</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">6</span>
-          <span class="hname">セットクルール</span>
-          <span class="score">0.167</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">5</span>
-          <span class="hname">キャルベイクルーズ</span>
-          <span class="score">0.117</span>
-        </div>
-      </div>
-      <div class="bets">
-        <div class="bet-row">
-          <span class="bet-type">3連複</span>
-          <div class="chips"><span class="chip">1-2-6 <b>1,000円</b></span></div>
-        </div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">10R</span>
-        <span class="race-n">11頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">2</span>
-          <span class="hname">ブルロッソ</span>
-          <span class="score">0.240</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">8</span>
-          <span class="hname">エンジェルナンバー</span>
-          <span class="score">0.239</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">1</span>
-          <span class="hname">セイウンピカイチ</span>
-          <span class="score">0.224</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">7</span>
-          <span class="hname">バイアンドホールド</span>
-          <span class="score">0.207</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">10</span>
-          <span class="hname">タイセイフォルテ</span>
-          <span class="score">0.193</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">5</span>
-          <span class="hname">ハクサンフラッシュ</span>
-          <span class="score">0.190</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">11</span>
-          <span class="hname">スターペスショウマ</span>
-          <span class="score">0.184</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">11R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">7</span>
-          <span class="hname">ハッピーミーク</span>
-          <span class="score">0.220</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">2</span>
-          <span class="hname">ジュンフィレンツェ</span>
-          <span class="score">0.213</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">6</span>
-          <span class="hname">タントゥーム</span>
-          <span class="score">0.198</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">ショウガマッタナシ</span>
-          <span class="score">0.194</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">10</span>
-          <span class="hname">ハクサンバード</span>
-          <span class="score">0.187</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">3</span>
-          <span class="hname">スティールアクター</span>
-          <span class="score">0.183</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">4</span>
-          <span class="hname">ラブミーテキーラ</span>
-          <span class="score">0.171</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    <section class="race-card">
-      <div class="race-head">
-        <span class="race-no">12R</span>
-        <span class="race-n">12頭</span>
-      </div>
-      <div class="horses">
-        <div class="horse-row">
-          <span class="sym">◎</span>
-          <span class="hno">7</span>
-          <span class="hname">ヘヴンリースカイ</span>
-          <span class="score">0.221</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">○</span>
-          <span class="hno">8</span>
-          <span class="hname">ブロンディ</span>
-          <span class="score">0.219</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">▲</span>
-          <span class="hno">11</span>
-          <span class="hname">クリコメリー</span>
-          <span class="score">0.217</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">3</span>
-          <span class="hname">キーサーバー</span>
-          <span class="score">0.216</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">△</span>
-          <span class="hno">9</span>
-          <span class="hname">トンデトンデトンデ</span>
-          <span class="score">0.210</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">☆</span>
-          <span class="hno">6</span>
-          <span class="hname">ピコレーヴ</span>
-          <span class="score">0.195</span>
-        </div>
-        <div class="horse-row">
-          <span class="sym">×</span>
-          <span class="hno">2</span>
-          <span class="hname">フローラルウェイ</span>
-          <span class="score">0.192</span>
-        </div>
-      </div>
-      <div class="bets"><div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>
-      </div>
-    </section>
-    </section>
-</main>
+<main id="main"></main>
 <footer>Full3.py（EV予想）による自動生成ページ</footer>
+<script>
+const DATA = {"updated": "2026/08/20 10:05", "date": "2026/08/20", "venues": [{"key": "kawasaki", "label": "川崎", "races": [{"no": 1, "n_horses": 12, "post_time": "15:00", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 2, "horse_name": "ピュアリヤン", "score": 0.3391548929596068, "rank": 1}, {"sym": "○", "horse_no": 8, "horse_name": "コーリングヘニー", "score": 0.30899126782476183, "rank": 2}, {"sym": "▲", "horse_no": 5, "horse_name": "クラダイリン", "score": 0.3016762796661667, "rank": 3}, {"sym": "△", "horse_no": 4, "horse_name": "ゴームズ", "score": 0.263968606809987, "rank": 4}, {"sym": "△", "horse_no": 3, "horse_name": "マイアイガー", "score": 0.25758300337107093, "rank": 5}, {"sym": "☆", "horse_no": 10, "horse_name": "ブルーラジカル", "score": 0.21573596254988495, "rank": 6}, {"sym": "×", "horse_no": 6, "horse_name": "ニシノテンカフブ", "score": 0.2084462994098402, "rank": 7}], "bets": {"3連複": [{"combo": "2-4-10", "ev": 16.688, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 2, "n_horses": 9, "post_time": "15:30", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 3, "horse_name": "クラリスマインド", "score": 0.3230505545795016, "rank": 1}, {"sym": "○", "horse_no": 8, "horse_name": "エポナシャンス", "score": 0.2902628361801217, "rank": 2}, {"sym": "▲", "horse_no": 7, "horse_name": "メガアイマシタネ", "score": 0.2847515621687353, "rank": 3}, {"sym": "△", "horse_no": 2, "horse_name": "シェナシャングリラ", "score": 0.2618167493883953, "rank": 4}, {"sym": "△", "horse_no": 1, "horse_name": "モウエエワ", "score": 0.24281895113921126, "rank": 5}, {"sym": "☆", "horse_no": 9, "horse_name": "デイデイト", "score": 0.22770891979291094, "rank": 6}, {"sym": "×", "horse_no": 4, "horse_name": "テルケンユミツバキ", "score": 0.21684993839008537, "rank": 7}], "bets": {"3連複": [{"combo": "2-7-9", "ev": 64.124, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 3, "n_horses": 11, "post_time": "16:00", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 4, "horse_name": "ゴーゴーメロディ", "score": 0.38116252317081223, "rank": 1}, {"sym": "○", "horse_no": 10, "horse_name": "ピエスポリード", "score": 0.35588666783488515, "rank": 2}, {"sym": "▲", "horse_no": 6, "horse_name": "ジーベローチェ", "score": 0.3309929650529606, "rank": 3}, {"sym": "△", "horse_no": 2, "horse_name": "キングスケヨー", "score": 0.3181703146685848, "rank": 4}, {"sym": "△", "horse_no": 5, "horse_name": "モンゲータイム", "score": 0.3105476321612288, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "アンジュベル", "score": 0.28833939072991555, "rank": 6}, {"sym": "×", "horse_no": 1, "horse_name": "サウンドプリモ", "score": 0.28759561420807406, "rank": 7}], "bets": {"3連複": [{"combo": "3-4-10", "ev": 9.509, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 4, "n_horses": 10, "post_time": "16:30", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 9, "horse_name": "デイトリッパー", "score": 0.39553244161484374, "rank": 1}, {"sym": "○", "horse_no": 7, "horse_name": "ミーリイ", "score": 0.317506186332322, "rank": 2}, {"sym": "▲", "horse_no": 4, "horse_name": "シガ", "score": 0.3133584193001318, "rank": 3}, {"sym": "△", "horse_no": 1, "horse_name": "サンドリヨン", "score": 0.2596301814987036, "rank": 4}, {"sym": "△", "horse_no": 3, "horse_name": "クリスタルシー", "score": 0.2563617573252961, "rank": 5}, {"sym": "☆", "horse_no": 6, "horse_name": "シンメウィル", "score": 0.22497436396526785, "rank": 6}, {"sym": "×", "horse_no": 8, "horse_name": "ナットワン", "score": 0.22410067072194, "rank": 7}], "bets": {"3連複": [{"combo": "1-6-7", "ev": 29.898, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 5, "n_horses": 11, "post_time": "17:00", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 9, "horse_name": "パルメニデス", "score": 0.3416132192295226, "rank": 1}, {"sym": "○", "horse_no": 10, "horse_name": "スマイルポピー", "score": 0.2901990815518225, "rank": 2}, {"sym": "▲", "horse_no": 1, "horse_name": "ミストラ", "score": 0.26921453728028766, "rank": 3}, {"sym": "△", "horse_no": 11, "horse_name": "タヴァネスタン", "score": 0.2681094086440315, "rank": 4}, {"sym": "△", "horse_no": 3, "horse_name": "モナークスラッガー", "score": 0.20175485769896134, "rank": 5}, {"sym": "☆", "horse_no": 2, "horse_name": "ヴァッツマン", "score": 0.20149639340747516, "rank": 6}, {"sym": "×", "horse_no": 6, "horse_name": "ケイツーブル", "score": 0.19623063813437308, "rank": 7}], "bets": {"3連複": [{"combo": "9-10-11", "ev": 42.605, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 6, "n_horses": 13, "post_time": "17:30", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 10, "horse_name": "ペータース", "score": 0.2931538991347371, "rank": 1}, {"sym": "○", "horse_no": 11, "horse_name": "ダンタリオン", "score": 0.29191528368592673, "rank": 2}, {"sym": "▲", "horse_no": 4, "horse_name": "ダテオトコ", "score": 0.2897201819196991, "rank": 3}, {"sym": "△", "horse_no": 9, "horse_name": "クレバス", "score": 0.2644528952547667, "rank": 4}, {"sym": "△", "horse_no": 2, "horse_name": "ロクノレインボー", "score": 0.26420647550662174, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "マイアミ", "score": 0.24392436262006353, "rank": 6}, {"sym": "×", "horse_no": 7, "horse_name": "エスジースパークル", "score": 0.19178464614936708, "rank": 7}], "bets": {}, "top3": [], "payouts": {}}, {"no": 7, "n_horses": 11, "post_time": "18:00", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 1, "horse_name": "ササキントモゴロウ", "score": 0.3557587456288255, "rank": 1}, {"sym": "○", "horse_no": 6, "horse_name": "フェイティアン", "score": 0.2721888061051775, "rank": 2}, {"sym": "▲", "horse_no": 8, "horse_name": "イルフロッタント", "score": 0.26888130004712, "rank": 3}, {"sym": "△", "horse_no": 2, "horse_name": "アトラスライズ", "score": 0.25455816577141144, "rank": 4}, {"sym": "△", "horse_no": 4, "horse_name": "マルモリアクティブ", "score": 0.23293411966797098, "rank": 5}, {"sym": "☆", "horse_no": 11, "horse_name": "タッカーバリアント", "score": 0.23088970903840464, "rank": 6}, {"sym": "×", "horse_no": 3, "horse_name": "タケノロイヤル", "score": 0.21728415173518664, "rank": 7}], "bets": {"3連複": [{"combo": "1-3-8", "ev": 76.943, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 8, "n_horses": 13, "post_time": "18:30", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 13, "horse_name": "デルマニンフ", "score": 0.35725417155487027, "rank": 1}, {"sym": "○", "horse_no": 7, "horse_name": "カズヤ", "score": 0.28637667221311247, "rank": 2}, {"sym": "▲", "horse_no": 6, "horse_name": "アリハッピー", "score": 0.2726352936935583, "rank": 3}, {"sym": "△", "horse_no": 9, "horse_name": "オルペラー", "score": 0.2540855009471697, "rank": 4}, {"sym": "△", "horse_no": 5, "horse_name": "エリンフレーム", "score": 0.2532198755070519, "rank": 5}, {"sym": "☆", "horse_no": 4, "horse_name": "メイショウマチルダ", "score": 0.22764562163668906, "rank": 6}, {"sym": "×", "horse_no": 12, "horse_name": "エイシントゥラン", "score": 0.2072981587682165, "rank": 7}], "bets": {"3連複": [{"combo": "7-9-13", "ev": 43.557, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 9, "n_horses": 10, "post_time": "19:05", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 5, "horse_name": "タイセイフランク", "score": 0.33794658288992463, "rank": 1}, {"sym": "○", "horse_no": 4, "horse_name": "アイルプロテクト", "score": 0.33774851898896724, "rank": 2}, {"sym": "▲", "horse_no": 2, "horse_name": "エターナルセイバー", "score": 0.26340450159522105, "rank": 3}, {"sym": "△", "horse_no": 6, "horse_name": "ミスフォルテ", "score": 0.2589272950101566, "rank": 4}, {"sym": "△", "horse_no": 8, "horse_name": "サラサエンペラー", "score": 0.21920700712549482, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "アイアンピッチ", "score": 0.21159333707996394, "rank": 6}, {"sym": "×", "horse_no": 10, "horse_name": "スプリンガフォート", "score": 0.19376890588222156, "rank": 7}], "bets": {"3連複": [{"combo": "4-5-6", "ev": 58.155, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 10, "n_horses": 9, "post_time": "19:40", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 1, "horse_name": "フジュム", "score": 0.4291728809077633, "rank": 1}, {"sym": "○", "horse_no": 5, "horse_name": "カナールショウヘイ", "score": 0.40159133390223156, "rank": 2}, {"sym": "▲", "horse_no": 2, "horse_name": "グレイスカリヨン", "score": 0.3897992786973217, "rank": 3}, {"sym": "△", "horse_no": 9, "horse_name": "ダートレイジング", "score": 0.3491835300822468, "rank": 4}, {"sym": "△", "horse_no": 4, "horse_name": "スティールウィル", "score": 0.32247512969484354, "rank": 5}, {"sym": "☆", "horse_no": 7, "horse_name": "ユメドリーム", "score": 0.24668649993463962, "rank": 6}, {"sym": "×", "horse_no": 6, "horse_name": "ベアアスムイ", "score": 0.21557531423415996, "rank": 7}], "bets": {"3連複": [{"combo": "1-2-5", "ev": 94.109, "amount": 1000}], "3連単": [{"combo": "1-2-5", "ev": 20.806, "amount": 200}, {"combo": "1-5-2", "ev": 19.515, "amount": 200}, {"combo": "1-2-9", "ev": 14.398, "amount": 200}, {"combo": "1-9-2", "ev": 12.7, "amount": 100}, {"combo": "1-5-9", "ev": 10.373, "amount": 100}, {"combo": "1-9-5", "ev": 9.755, "amount": 100}]}, "top3": [], "payouts": {}}, {"no": 11, "n_horses": 14, "post_time": "20:15", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 2, "horse_name": "ミスティライズ", "score": 0.29082492267514826, "rank": 1}, {"sym": "○", "horse_no": 5, "horse_name": "スターグリップ", "score": 0.2680368860033408, "rank": 2}, {"sym": "▲", "horse_no": 3, "horse_name": "モンタナアゲート", "score": 0.2551659170625665, "rank": 3}, {"sym": "△", "horse_no": 14, "horse_name": "レグノ", "score": 0.2438737182101959, "rank": 4}, {"sym": "△", "horse_no": 7, "horse_name": "バリアントバイオ", "score": 0.2244826185532381, "rank": 5}, {"sym": "☆", "horse_no": 6, "horse_name": "サヨノフィールド", "score": 0.19642211190055658, "rank": 6}, {"sym": "×", "horse_no": 10, "horse_name": "シャンパンファイト", "score": 0.19500615125711832, "rank": 7}], "bets": {}, "top3": [], "payouts": {}}, {"no": 12, "n_horses": 13, "post_time": "20:50", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 6, "horse_name": "グラズヘイム", "score": 0.3187505829475693, "rank": 1}, {"sym": "○", "horse_no": 2, "horse_name": "ドナエポナ", "score": 0.2790905629619708, "rank": 2}, {"sym": "▲", "horse_no": 1, "horse_name": "テセラグラディウス", "score": 0.2740906360501468, "rank": 3}, {"sym": "△", "horse_no": 3, "horse_name": "ブルーオーシャン", "score": 0.24024396474351728, "rank": 4}, {"sym": "△", "horse_no": 7, "horse_name": "マーベラスティアラ", "score": 0.23660500647629254, "rank": 5}, {"sym": "☆", "horse_no": 13, "horse_name": "ジーカンピオーネ", "score": 0.2207441087090581, "rank": 6}, {"sym": "×", "horse_no": 11, "horse_name": "ピカレスクヒーロー", "score": 0.22054638611487956, "rank": 7}], "bets": {"3連複": [{"combo": "2-6-11", "ev": 31.584, "amount": 1000}]}, "top3": [], "payouts": {}}]}, {"key": "nagoya", "label": "名古屋", "races": [{"no": 1, "n_horses": 11, "post_time": "14:15", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 9, "horse_name": "メーテルリンク", "score": 0.9530134611148345, "rank": 1}, {"sym": "○", "horse_no": 10, "horse_name": "ヴェロシア", "score": 0.9481881866475549, "rank": 2}, {"sym": "▲", "horse_no": 2, "horse_name": "ナンヨーロイヤル", "score": 0.9476948894901324, "rank": 3}, {"sym": "△", "horse_no": 11, "horse_name": "チェリカキング", "score": 0.9441663125724139, "rank": 4}, {"sym": "△", "horse_no": 5, "horse_name": "ジューンスマッシュ", "score": 0.9416043150768577, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "ウインマデイラ", "score": 0.938853121835479, "rank": 6}, {"sym": "×", "horse_no": 6, "horse_name": "メイナンファスト", "score": 0.9358939866502769, "rank": 7}], "bets": {"3連複": [{"combo": "2-9-10", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "9-10-2", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 2, "n_horses": 12, "post_time": "14:45", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 6, "horse_name": "クツシタオトシタ", "score": 0.9642884715450513, "rank": 1}, {"sym": "○", "horse_no": 5, "horse_name": "スエ", "score": 0.9568577141400619, "rank": 2}, {"sym": "▲", "horse_no": 9, "horse_name": "ルクスプロフェシー", "score": 0.9545878799691238, "rank": 3}, {"sym": "△", "horse_no": 12, "horse_name": "ウエスタンオレンジ", "score": 0.949698658367469, "rank": 4}, {"sym": "△", "horse_no": 8, "horse_name": "アーデントアイ", "score": 0.9456018434164194, "rank": 5}, {"sym": "☆", "horse_no": 1, "horse_name": "クモンリュウ", "score": 0.934701898327652, "rank": 6}, {"sym": "×", "horse_no": 11, "horse_name": "エバーウインド", "score": 0.9339442529148724, "rank": 7}], "bets": {"3連複": [{"combo": "5-6-9", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "6-5-9", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 3, "n_horses": 12, "post_time": "15:20", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 11, "horse_name": "スピネルテソーロ", "score": 0.9572141906286281, "rank": 1}, {"sym": "○", "horse_no": 7, "horse_name": "ケイズシャーロット", "score": 0.945077343481213, "rank": 2}, {"sym": "▲", "horse_no": 9, "horse_name": "コスモギオン", "score": 0.9431500475873452, "rank": 3}, {"sym": "△", "horse_no": 2, "horse_name": "ユイノレジスタンス", "score": 0.9336544091839127, "rank": 4}, {"sym": "△", "horse_no": 3, "horse_name": "ニキータ", "score": 0.9281143662068503, "rank": 5}, {"sym": "☆", "horse_no": 6, "horse_name": "キタカラキタマアヤ", "score": 0.9274521921340851, "rank": 6}, {"sym": "×", "horse_no": 4, "horse_name": "グレーターグレイ", "score": 0.9228879411031856, "rank": 7}], "bets": {"3連複": [{"combo": "7-9-11", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "11-7-9", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 4, "n_horses": 12, "post_time": "15:55", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 11, "horse_name": "ビップジョワ", "score": 0.9572141906286281, "rank": 1}, {"sym": "○", "horse_no": 4, "horse_name": "ナムラキングダム", "score": 0.9532688094848971, "rank": 2}, {"sym": "▲", "horse_no": 8, "horse_name": "マイネルラジェム", "score": 0.9512931229583359, "rank": 3}, {"sym": "△", "horse_no": 9, "horse_name": "ベベペッパー", "score": 0.9491257986473173, "rank": 4}, {"sym": "△", "horse_no": 10, "horse_name": "デパーチャー", "score": 0.9425587974676858, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "ペプチドプラタ", "score": 0.9417528979370636, "rank": 6}, {"sym": "×", "horse_no": 1, "horse_name": "トントンビョウシ", "score": 0.9404875897819498, "rank": 7}], "bets": {"3連複": [{"combo": "4-8-11", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "11-4-8", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 5, "n_horses": 11, "post_time": "16:40", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 11, "horse_name": "ネオアリシア", "score": 0.9448947881278579, "rank": 1}, {"sym": "○", "horse_no": 4, "horse_name": "アスプロガイア", "score": 0.9446640514121051, "rank": 2}, {"sym": "▲", "horse_no": 8, "horse_name": "クールマーロウ", "score": 0.9392451288883945, "rank": 3}, {"sym": "△", "horse_no": 2, "horse_name": "プロメッサ", "score": 0.9380758860638682, "rank": 4}, {"sym": "△", "horse_no": 10, "horse_name": "ロジスクリーン", "score": 0.9379408698481334, "rank": 5}, {"sym": "☆", "horse_no": 9, "horse_name": "スマートヌーメン", "score": 0.9345504621065192, "rank": 6}, {"sym": "×", "horse_no": 7, "horse_name": "カムイパパイヤ", "score": 0.9313612019303827, "rank": 7}], "bets": {"3連複": [{"combo": "4-8-11", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "11-4-8", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 6, "n_horses": 12, "post_time": "17:15", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 9, "horse_name": "シャンドネージュ", "score": 0.9576842024126349, "rank": 1}, {"sym": "○", "horse_no": 11, "horse_name": "シヴァールバーニ", "score": 0.94946388055299, "rank": 2}, {"sym": "▲", "horse_no": 7, "horse_name": "トークダウン", "score": 0.9494298597849673, "rank": 3}, {"sym": "△", "horse_no": 5, "horse_name": "スイートゥンビター", "score": 0.9415690947229934, "rank": 4}, {"sym": "△", "horse_no": 12, "horse_name": "ノヴァエスペランサ", "score": 0.936767032274673, "rank": 5}, {"sym": "☆", "horse_no": 10, "horse_name": "デルマガニメデ", "score": 0.9334447905636842, "rank": 6}, {"sym": "×", "horse_no": 1, "horse_name": "エイシンハトホル", "score": 0.9298704323952487, "rank": 7}], "bets": {"3連複": [{"combo": "7-9-11", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "9-11-7", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 7, "n_horses": 12, "post_time": "17:50", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 9, "horse_name": "セイスイミリオン", "score": 0.9602206470270486, "rank": 1}, {"sym": "○", "horse_no": 8, "horse_name": "ナムラフィクサー", "score": 0.9501092155519191, "rank": 2}, {"sym": "▲", "horse_no": 4, "horse_name": "サンフローリス", "score": 0.9469982926582573, "rank": 3}, {"sym": "△", "horse_no": 5, "horse_name": "ミステンザン", "score": 0.9441858160525295, "rank": 4}, {"sym": "△", "horse_no": 11, "horse_name": "ウィルマッチ", "score": 0.9389989983228184, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "マサハヤモーブ", "score": 0.9347454095887556, "rank": 6}, {"sym": "×", "horse_no": 10, "horse_name": "シャイニングウェイ", "score": 0.9178610173060634, "rank": 7}], "bets": {"3連複": [{"combo": "4-8-9", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "9-8-4", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 8, "n_horses": 11, "post_time": "18:20", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 8, "horse_name": "フクノジョヴァンニ", "score": 0.955574109999628, "rank": 1}, {"sym": "○", "horse_no": 11, "horse_name": "リョウライライ", "score": 0.9505814746931369, "rank": 2}, {"sym": "▲", "horse_no": 5, "horse_name": "タベザカリ", "score": 0.9454020064610439, "rank": 3}, {"sym": "△", "horse_no": 7, "horse_name": "デトネイター", "score": 0.9450593850780091, "rank": 4}, {"sym": "△", "horse_no": 9, "horse_name": "レースノワエ", "score": 0.9448730453528252, "rank": 5}, {"sym": "☆", "horse_no": 3, "horse_name": "モアサナイト", "score": 0.9437818827628924, "rank": 6}, {"sym": "×", "horse_no": 10, "horse_name": "エクメノポリス", "score": 0.9416413259439527, "rank": 7}], "bets": {"3連複": [{"combo": "5-8-11", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "8-11-5", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 9, "n_horses": 6, "post_time": "18:55", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 4, "horse_name": "ブライテン", "score": 0.9713201003974815, "rank": 1}, {"sym": "○", "horse_no": 3, "horse_name": "ラブラブフォー", "score": 0.9654829809495931, "rank": 2}, {"sym": "▲", "horse_no": 2, "horse_name": "ジェイエルバルカー", "score": 0.9506317678182106, "rank": 3}, {"sym": "△", "horse_no": 1, "horse_name": "ジャスパーノワール", "score": 0.9491610708792257, "rank": 4}, {"sym": "△", "horse_no": 6, "horse_name": "セットクルール", "score": 0.939717495287607, "rank": 5}, {"sym": "☆", "horse_no": 5, "horse_name": "キャルベイクルーズ", "score": 0.9214363911145808, "rank": 6}], "bets": {"3連複": [{"combo": "2-3-4", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "4-3-2", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 10, "n_horses": 11, "post_time": "19:30", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 6, "horse_name": "サンセットベリー", "score": 0.946360041598943, "rank": 1}, {"sym": "○", "horse_no": 11, "horse_name": "スターペスショウマ", "score": 0.9451653481334209, "rank": 2}, {"sym": "▲", "horse_no": 10, "horse_name": "タイセイフォルテ", "score": 0.9451320007078964, "rank": 3}, {"sym": "△", "horse_no": 4, "horse_name": "コスモナッシュビル", "score": 0.9412568899188845, "rank": 4}, {"sym": "△", "horse_no": 1, "horse_name": "セイウンピカイチ", "score": 0.9407393665826657, "rank": 5}, {"sym": "☆", "horse_no": 5, "horse_name": "ハクサンフラッシュ", "score": 0.9317871310681821, "rank": 6}, {"sym": "×", "horse_no": 3, "horse_name": "メイクン", "score": 0.9281100497126605, "rank": 7}], "bets": {"3連複": [{"combo": "6-10-11", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "6-11-10", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 11, "n_horses": 12, "post_time": "20:05", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 6, "horse_name": "タントゥーム", "score": 0.9542756893802927, "rank": 1}, {"sym": "○", "horse_no": 9, "horse_name": "ショウガマッタナシ", "score": 0.9532378424826887, "rank": 2}, {"sym": "▲", "horse_no": 10, "horse_name": "ハクサンバード", "score": 0.9532378424826887, "rank": 3}, {"sym": "△", "horse_no": 3, "horse_name": "スティールアクター", "score": 0.9506593831215655, "rank": 4}, {"sym": "△", "horse_no": 2, "horse_name": "ジュンフィレンツェ", "score": 0.9379657758963663, "rank": 5}, {"sym": "☆", "horse_no": 4, "horse_name": "ラブミーテキーラ", "score": 0.9293076002429748, "rank": 6}, {"sym": "×", "horse_no": 11, "horse_name": "パピタ", "score": 0.9129470851167275, "rank": 7}], "bets": {"3連複": [{"combo": "6-9-10", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "6-9-10", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}, {"no": 12, "n_horses": 12, "post_time": "20:45", "confirmed": false, "horses": [{"sym": "◎", "horse_no": 12, "horse_name": "ホレキタヤレキタ", "score": 0.9531664475046951, "rank": 1}, {"sym": "○", "horse_no": 9, "horse_name": "トンデトンデトンデ", "score": 0.9474038620982778, "rank": 2}, {"sym": "▲", "horse_no": 11, "horse_name": "クリコメリー", "score": 0.9452805357892378, "rank": 3}, {"sym": "△", "horse_no": 2, "horse_name": "フローラルウェイ", "score": 0.9436815507037962, "rank": 4}, {"sym": "△", "horse_no": 8, "horse_name": "ブロンディ", "score": 0.943451100757443, "rank": 5}, {"sym": "☆", "horse_no": 6, "horse_name": "ピコレーヴ", "score": 0.9403640264306683, "rank": 6}, {"sym": "×", "horse_no": 4, "horse_name": "ブルーアンバー", "score": 0.9323582051486047, "rank": 7}], "bets": {"3連複": [{"combo": "9-11-12", "ev": 0.0, "amount": 1000}], "3連単": [{"combo": "12-9-11", "ev": 0.0, "amount": 1000}]}, "top3": [], "payouts": {}}]}]};
+let curVenue = DATA.venues.length ? DATA.venues[0].key : null;
+let curRace  = null;
+
+function pickInitialRace(venue) {
+  // 未確定の最初のレース（＝これから買うべきレース）を初期選択にする
+  const unconfirmed = venue.races.find(r => !r.confirmed);
+  return unconfirmed ? unconfirmed.no : (venue.races[0] ? venue.races[0].no : null);
+}
+
+function render() {
+  const main = document.getElementById('main');
+  if (!DATA.venues.length) {
+    main.innerHTML = '<p class="empty">本日の予想データがありません</p>';
+    document.getElementById('tabs').innerHTML = '';
+    document.getElementById('races').innerHTML = '';
+    return;
+  }
+  const venue = DATA.venues.find(v => v.key === curVenue) || DATA.venues[0];
+  curVenue = venue.key;
+  if (curRace === null) curRace = pickInitialRace(venue);
+
+  // 競馬場タブ
+  document.getElementById('tabs').innerHTML = DATA.venues.map(v =>
+    `<button class="tab-btn ${v.key === curVenue ? 'active' : ''}" onclick="selectVenue('${v.key}')">${v.label}</button>`
+  ).join('');
+
+  // レースチップ
+  document.getElementById('races').innerHTML = venue.races.map(r =>
+    `<div class="race-chip ${r.confirmed ? 'confirmed' : ''} ${r.no === curRace ? 'active' : ''}" onclick="selectRace(${r.no})">
+       ${r.no}R<span class="dot"></span>
+     </div>`
+  ).join('');
+
+  const race = venue.races.find(r => r.no === curRace);
+  if (!race) { main.innerHTML = '<p class="empty">レースを選んでください</p>'; return; }
+
+  const horseRows = race.horses.map(h => `
+    <div class="horse-row">
+      <span class="sym">${h.sym}</span>
+      <span class="hno">${h.horse_no}</span>
+      <span class="hname">${h.horse_name}</span>
+      <span class="score">${h.score.toFixed(3)}</span>
+    </div>`).join('');
+
+  let betHtml = '';
+  const betTypes = Object.keys(race.bets || {});
+  if (betTypes.length) {
+    betHtml = betTypes.map(bt => {
+      const chips = race.bets[bt].map(it => `<span class="chip">${it.combo} <b>${it.amount.toLocaleString()}円</b></span>`).join('');
+      return `<div class="bet-row"><span class="bet-type">${bt}</span><div class="chips">${chips}</div></div>`;
+    }).join('');
+  } else {
+    betHtml = '<div class="bet-row no-bet">見送り（期待値基準を満たす買い目なし）</div>';
+  }
+
+  let resultHtml = '';
+  if (race.confirmed) {
+    const finishHtml = (race.top3 || []).map(t =>
+      `<span class="finish-item"><span class="pos">${t.finish_pos}着</span>${t.horse_no}番 ${t.horse_name}</span>`
+    ).join('');
+    const payoutTypes = Object.keys(race.payouts || {});
+    const payoutHtml = payoutTypes.map(bt => {
+      const p = race.payouts[bt];
+      return `<span class="payout-chip">${bt} ${p.combo} <b>${p.payout ? p.payout.toLocaleString() + '円' : '-'}</b></span>`;
+    }).join('');
+    resultHtml = `
+      <div class="result-box">
+        <h3>結果</h3>
+        <div class="finish-list">${finishHtml || '<span class="finish-item">着順情報なし</span>'}</div>
+        <div class="payout-chips">${payoutHtml}</div>
+      </div>`;
+  }
+
+  main.innerHTML = `
+    <section class="race-card">
+      <div class="race-head">
+        <span class="race-no">${race.no}R</span>
+        <span class="race-n">${race.n_horses}頭</span>
+        ${race.post_time ? `<span class="post-time">発走 ${race.post_time}</span>` : ''}
+        <span class="status-badge ${race.confirmed ? 'confirmed' : 'pending'}">${race.confirmed ? '確定' : '未確定'}</span>
+      </div>
+      <div class="horses">${horseRows}</div>
+      <div class="bets">${betHtml}</div>
+      ${resultHtml}
+    </section>`;
+}
+
+function selectVenue(key) { curVenue = key; curRace = null; render(); }
+function selectRace(no) { curRace = no; render(); }
+
+render();
+</script>
 </body>
 </html>
