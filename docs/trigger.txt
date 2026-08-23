@@ -1,1 +1,1 @@
-{"venue":"morioka","race_no":3,"ts":"2026-08-23T04:49:32.123Z"}
+{"venue":"morioka","race_no":1,"ts":"2026-08-23T09:52:40.936Z"}
