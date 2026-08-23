@@ -1,1 +1,1 @@
-{"venue": null, "race_no": null, "ts": null}
+{"venue":"morioka","race_no":3,"ts":"2026-08-23T01:33:32.639Z"}
