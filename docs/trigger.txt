@@ -1,1 +1,1 @@
-{"venue":"kasamatsu","race_no":1,"ts":"2026-08-25T00:45:21.906Z"}
+{"venue":"kasamatsu","race_no":1,"ts":"2026-08-26T03:07:27.043Z"}
