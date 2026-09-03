@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>現在地表示</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #0f1420; --bg2: #161d2e; --card: #1b2437; --border: #2a3550;
+  --fg: #e8ecf5; --fg2: #a8b3c9; --fg3: #6b7690;
+  --accent: #4a9eff; --ok: #4caf7d; --warn: #e0a83a; --err: #e05a5a;
+  --chip-bg: #24304a;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-force-dark]) {
+    --bg: #f5f3ee; --bg2: #ffffff; --card: #ffffff; --border: #e0dccf;
+    --fg: #1c1c1c; --fg2: #52504a; --fg3: #8a877c;
+    --accent: #1a6fd6; --ok: #2f8f5b; --warn: #9c7a1f; --err: #c0392b;
+    --chip-bg: #f0ede3;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  line-height: 1.5;
+  display: flex; flex-direction: column;
+  min-height: 100dvh;
+}
+header {
+  padding: 14px 16px calc(10px + env(safe-area-inset-top, 0px));
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+header p { margin: 4px 0 0; font-size: 12.5px; color: var(--fg3); }
+
+main {
+  flex: 1;
+  padding: 14px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.controls { display: flex; gap: 10px; }
+button {
+  flex: 1;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--chip-bg);
+  color: var(--fg);
+  font-size: 14.5px;
+  font-weight: 600;
+  padding: 12px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+button:active { opacity: 0.75; }
+button.primary { background: var(--accent); color: #fff; border-color: transparent; }
+button.tracking { background: var(--ok); color: #fff; border-color: transparent; }
+button:disabled { opacity: 0.5; cursor: default; }
+
+.status {
+  font-size: 13px;
+  color: var(--fg3);
+  padding: 2px 2px;
+  min-height: 1.4em;
+}
+.status.err { color: var(--err); }
+.status.ok { color: var(--ok); }
+
+#map {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+}
+.field { display: flex; flex-direction: column; gap: 2px; }
+.field .label { font-size: 11.5px; color: var(--fg3); }
+.field .value { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.linkrow { display: flex; gap: 10px; flex-wrap: wrap; }
+.linkrow a {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--chip-bg);
+}
+
+.note {
+  font-size: 12px;
+  color: var(--fg3);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>📍 現在地表示</h1>
+  <p>ブラウザの位置情報機能を使用します。アプリのインストールは不要です。</p>
+</header>
+
+<main>
+  <div class="controls">
+    <button id="btnOnce" class="primary">現在地を取得</button>
+    <button id="btnWatch">リアルタイム追跡: OFF</button>
+  </div>
+
+  <div id="status" class="status">ボタンを押すと、ブラウザが位置情報の使用許可を確認します。</div>
+
+  <div id="map"></div>
+
+  <div class="card">
+    <div class="grid">
+      <div class="field"><span class="label">緯度</span><span class="value" id="vLat">—</span></div>
+      <div class="field"><span class="label">経度</span><span class="value" id="vLng">—</span></div>
+      <div class="field"><span class="label">精度</span><span class="value" id="vAcc">—</span></div>
+      <div class="field"><span class="label">高度</span><span class="value" id="vAlt">—</span></div>
+      <div class="field"><span class="label">速度</span><span class="value" id="vSpd">—</span></div>
+      <div class="field"><span class="label">取得時刻</span><span class="value" id="vTime">—</span></div>
+    </div>
+  </div>
+
+  <div class="linkrow">
+    <a id="lnkGoogle" href="#" target="_blank" rel="noopener">Googleマップで開く ↗</a>
+    <a id="lnkOsm" href="#" target="_blank" rel="noopener">OpenStreetMapで開く ↗</a>
+  </div>
+
+  <div class="note">
+    ※ 位置情報の取得には HTTPS 接続とブラウザの許可が必要です。許可を求めるダイアログが出ない場合は、ブラウザの設定でこのサイトの位置情報がブロックされていないか確認してください。<br>
+    ※ 「リアルタイム追跡」は端末の位置情報を継続的に取得し続けます。バッテリー消費が増えるため、使い終わったら OFF にしてください。
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var statusEl = document.getElementById('status');
+  var btnOnce = document.getElementById('btnOnce');
+  var btnWatch = document.getElementById('btnWatch');
+
+  var map = L.map('map', { zoomControl: true }).setView([35.681236, 139.767125], 5); // 初期表示: 東京駅付近
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var marker = null;
+  var accCircle = null;
+  var watchId = null;
+  var firstFix = true;
+
+  function setStatus(msg, kind) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  function fmt(n, digits) {
+    return (n === null || n === undefined || Number.isNaN(n)) ? '—' : n.toFixed(digits);
+  }
+
+  function errorMessage(err) {
+    switch (err.code) {
+      case err.PERMISSION_DENIED:
+        return '位置情報の利用が許可されませんでした。ブラウザの設定から許可してください。';
+      case err.POSITION_UNAVAILABLE:
+        return '位置情報を取得できませんでした。電波状況の良い場所で再度お試しください。';
+      case err.TIMEOUT:
+        return '位置情報の取得がタイムアウトしました。もう一度お試しください。';
+      default:
+        return '位置情報の取得中にエラーが発生しました。';
+    }
+  }
+
+  function updateUI(pos) {
+    var c = pos.coords;
+    document.getElementById('vLat').textContent = fmt(c.latitude, 6);
+    document.getElementById('vLng').textContent = fmt(c.longitude, 6);
+    document.getElementById('vAcc').textContent = c.accuracy ? '±' + Math.round(c.accuracy) + ' m' : '—';
+    document.getElementById('vAlt').textContent = (c.altitude === null || c.altitude === undefined) ? '—' : Math.round(c.altitude) + ' m';
+    document.getElementById('vSpd').textContent = (c.speed === null || c.speed === undefined) ? '—' : (c.speed * 3.6).toFixed(1) + ' km/h';
+    document.getElementById('vTime').textContent = new Date(pos.timestamp).toLocaleTimeString('ja-JP');
+
+    var latlng = [c.latitude, c.longitude];
+    if (!marker) {
+      marker = L.marker(latlng).addTo(map);
+    } else {
+      marker.setLatLng(latlng);
+    }
+    if (c.accuracy) {
+      if (!accCircle) {
+        accCircle = L.circle(latlng, { radius: c.accuracy, color: '#4a9eff', fillOpacity: 0.12, weight: 1 }).addTo(map);
+      } else {
+        accCircle.setLatLng(latlng);
+        accCircle.setRadius(c.accuracy);
+      }
+    }
+    if (firstFix) {
+      map.setView(latlng, 17);
+      firstFix = false;
+    } else {
+      map.panTo(latlng);
+    }
+
+    document.getElementById('lnkGoogle').href = 'https://www.google.com/maps?q=' + c.latitude + ',' + c.longitude;
+    document.getElementById('lnkOsm').href = 'https://www.openstreetmap.org/?mlat=' + c.latitude + '&mlon=' + c.longitude + '#map=17/' + c.latitude + '/' + c.longitude;
+
+    setStatus('現在地を取得しました。', 'ok');
+  }
+
+  if (!('geolocation' in navigator)) {
+    setStatus('この端末・ブラウザは位置情報機能に対応していません。', 'err');
+    btnOnce.disabled = true;
+    btnWatch.disabled = true;
+    return;
+  }
+
+  btnOnce.addEventListener('click', function () {
+    setStatus('位置情報を取得中…');
+    navigator.geolocation.getCurrentPosition(
+      updateUI,
+      function (err) { setStatus(errorMessage(err), 'err'); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  });
+
+  btnWatch.addEventListener('click', function () {
+    if (watchId === null) {
+      setStatus('リアルタイム追跡を開始します…');
+      watchId = navigator.geolocation.watchPosition(
+        updateUI,
+        function (err) { setStatus(errorMessage(err), 'err'); },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+      btnWatch.textContent = 'リアルタイム追跡: ON';
+      btnWatch.classList.add('tracking');
+    } else {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+      btnWatch.textContent = 'リアルタイム追跡: OFF';
+      btnWatch.classList.remove('tracking');
+      setStatus('リアルタイム追跡を停止しました。');
+    }
+  });
+})();
+</script>
+</body>
+</html>
