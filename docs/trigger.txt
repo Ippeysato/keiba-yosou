@@ -1,1 +1,1 @@
-{"venue":"urawa","race_no":6,"ts":"2026-09-24T06:41:21.931Z"}
+{"venue":"funabashi","race_no":1,"ts":"2026-09-28T03:20:32.838Z"}
